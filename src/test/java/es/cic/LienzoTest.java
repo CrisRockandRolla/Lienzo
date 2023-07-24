@@ -41,7 +41,7 @@ public class LienzoTest {
     }
 
     @Test
-    void testAgregar_IdExiste_DeberiaLanzarExcepcion() throws IOException {
+    void testAgregar_IdExiste_DeberiaLanzarExcepcion() {
         AbstractFigura figura1 = mock(Punto.class);
         when(figura1.estaDentroLimites(id)).thenReturn(true);
 
@@ -55,7 +55,7 @@ public class LienzoTest {
     }
 
     @Test
-    void testAgregar_FueraLimites_DeberiaLanzarExcepcion() throws IOException {
+    void testAgregar_FueraLimites_DeberiaLanzarExcepcion() {
         AbstractFigura figura1 = mock(Punto.class);
         when(figura1.estaDentroLimites(id)).thenReturn(false);
 
@@ -156,7 +156,7 @@ public class LienzoTest {
     }
 
     @Test
-    public void cargarFicheroTest() throws IOException {
+    public void cargarFicheroTest() {
         Map<String, AbstractFigura> figuras = lienzo.cargarFiguras(nombreArchivo);
         Assertions.assertEquals(1, figuras.size());
     }

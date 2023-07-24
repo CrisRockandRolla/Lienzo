@@ -22,7 +22,7 @@ public class Lienzo {
     private static int alto = 1000000;
     private final Map<String, AbstractFigura> figuras;
 
-    public Lienzo(String nombreArchivo) throws IOException {
+    public Lienzo(String nombreArchivo) {
         figuras = new HashMap<>();
         if (Files.exists(Paths.get(nombreArchivo))) cargarFiguras(nombreArchivo);
     }
@@ -78,7 +78,7 @@ public class Lienzo {
             for (Map.Entry<String, AbstractFigura> entry : figuras.entrySet()) {
                 String id = entry.getKey();
                 AbstractFigura figura = entry.getValue();
-                String[] data = null;
+                String[] data;
                 switch (figura.getClass().getSimpleName()) {
                     case "Punto":
                         data = new String[]{id, figura.getClass().getSimpleName(), figura.getPosicion() + "", figura.getColor()};

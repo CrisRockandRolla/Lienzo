@@ -83,5 +83,4 @@ abstract class AbstractFigura implements Figura {
     public void setColor(String color) {
         this.color = color;
     }
-
 }
