@@ -1,86 +1,116 @@
 package es.cic;
 
 import es.cic.excepciones.OutOfBoundsException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class AbstractFiguraTest {
-//    @Test
-//    void crearFigura_DeberiaCrearFiguraConCoordenadasYColorCorrectos() {
-//        int x = 10;
-//        int y = 20;
-//        String color = "rojo";
-//
-//        Figura figura = new Punto(x, y, color);
-//
-//        assertEquals(x, figura.getX());
-//        assertEquals(y, figura.getY());
-//        assertEquals(color, figura.getColor());
-//    }
+    private Posicion posicion, posicion2, nuevaPosicionOk, nuevaPosicionKo;
+    private final String color = "rojo";
+    private final int nuevaLongitud = 20;
+    private Cuadrado cuadrado;
 
+    @BeforeEach
+    void setUp() {
+
+        posicion = mock(Posicion.class);
+        when(posicion.getCoordenadaX()).thenReturn(10);
+        when(posicion.getCoordenadaY()).thenReturn(20);
+
+        cuadrado = new Cuadrado(posicion, 10, color);
+
+        posicion2 = mock(Posicion.class);
+        when(posicion.getCoordenadaX()).thenReturn(50);
+        when(posicion.getCoordenadaY()).thenReturn(50);
+
+        nuevaPosicionOk = mock(Posicion.class);
+        when(nuevaPosicionOk.getCoordenadaX()).thenReturn(20);
+        when(nuevaPosicionOk.getCoordenadaY()).thenReturn(50);
+
+        nuevaPosicionKo = mock(Posicion.class);
+        when(nuevaPosicionKo.getCoordenadaX()).thenReturn(-20);
+        when(nuevaPosicionKo.getCoordenadaY()).thenReturn(50);
+    }
+
+    /*
+    =========================================================
+                         MOVER FIGURA
+    =========================================================
+     */
     @Test
     void setPosicion_DeberiaModificarPosicionDeLaFigura() {
-        Posicion posicion = new Posicion(10,20);
-
-        Posicion nuevaPosicion = new Posicion(20,50);
-        String color = "rojo";
         AbstractFigura figura = new Punto(posicion, color);
-
-        figura.mover(nuevaPosicion);
-
-        assertEquals(nuevaPosicion, figura.getPosicion());
+        figura.mover(nuevaPosicionOk);
+        assertEquals(nuevaPosicionOk, figura.getPosicion());
     }
 
     @Test
     void setPosicion_DeberiaNoModificarPosicionDeLaFigura() {
-        Posicion posicion = new Posicion(10,20);
-
-        Posicion nuevaPosicion = new Posicion(-20,50);
-        String color = "rojo";
         AbstractFigura figura = new Punto(posicion, color);
-
-        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicion));
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicionKo));
     }
 
     @Test
     void setPosicionLinea_DeberiaModificarPosicionDeLaFigura() {
-        Posicion posicion1 = new Posicion(10,10);
-        Posicion posicion2 = new Posicion(20,20);
-        Posicion nuevaPosicion1 = new Posicion(20,50);
-        Posicion nuevaPosicion2 = new Posicion(35,27);
-        AbstractFigura figura = new Linea(posicion1,posicion2,"verde");
-        figura.mover(nuevaPosicion1,true);
-        assertEquals(nuevaPosicion1, figura.getPosicion());
-        figura.mover(nuevaPosicion2,false);
-        assertEquals(nuevaPosicion2, figura.getPosicion2());
-
-
+        AbstractFigura figura = new Linea(posicion, posicion2, color);
+        figura.mover(nuevaPosicionOk, true);
+        assertEquals(nuevaPosicionOk, figura.getPosicion());
+        figura.mover(nuevaPosicionOk, false);
+        assertEquals(nuevaPosicionOk, figura.getPosicion2());
     }
 
     @Test
     void setPosicionLinea_DeberiaNoModificarPosicionDeLaFigura() {
-        Posicion nuevaPosicion3 = new Posicion(-35,27);
-
-        AbstractFigura figura = new Linea(new Posicion(10,10),new Posicion(20,20),"verde");
-        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicion3,true));
-        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicion3,false));
+        AbstractFigura figura = new Linea(posicion, posicion2, color);
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicionKo, true));
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicionKo, false));
     }
 
+    /*
+    =========================================================================
+                         FALTAN LOS DE CAMBIAR TAMAÑO
+    =========================================================================
+     */
 
     @Test
-    void pruebaTest() throws IOException, InterruptedException {
-        Lienzo lienzo = new Lienzo("figuras.txt");
+    void setTamano_DeberiaModificarTamanoDeLaFigura() {
+        cuadrado.cambiarTamano(nuevaLongitud);
+        assertEquals(nuevaLongitud, cuadrado.getLado());
+    }
 
-        Thread.sleep(5000);
-        lienzo.agregarFigura("Punto01",new Punto(new Posicion(10,10),"rojo"));
-        Thread.sleep(5000);
+    @Test
+    void setTamano_NoDeberiaModificarTamanoDeLaFigura() {
+        assertThrows(RuntimeException.class, () -> cuadrado.cambiarTamano(-nuevaLongitud));
+    }
 
+    @Test
+    void setTamanoPunto_NoDeberiaModificarTamanoDeLaFigura() {
+        AbstractFigura figura = new Punto(posicion, color);
+        assertThrows(RuntimeException.class, () -> figura.cambiarTamano(nuevaLongitud));
+    }
 
-//        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicion));
+    @Test
+    void setTamanoLinea_DeberiaModificarTamanoDeLaFigura() {
+        AbstractFigura figura = new Linea(posicion, posicion2, color);
+
+        figura.mover(nuevaPosicionOk, true);
+        assertEquals(nuevaPosicionOk, figura.getPosicion());
+
+        figura.mover(nuevaPosicionOk, false);
+        assertEquals(nuevaPosicionOk, figura.getPosicion2());
+    }
+
+    @Test
+    void setTamanoLinea_NoDeberiaModificarTamanoDeLaFigura() {
+        AbstractFigura figura = new Linea(posicion, posicion2, color);
+
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicionKo, true));
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicionKo, false));
     }
 
 }

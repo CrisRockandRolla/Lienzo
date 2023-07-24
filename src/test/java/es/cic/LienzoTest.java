@@ -1,11 +1,13 @@
 package es.cic;
 
+import es.cic.excepciones.IdNotFoundException;
 import es.cic.excepciones.NoSuchElementException;
+import es.cic.excepciones.OutOfBoundsException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -13,88 +15,150 @@ import static org.mockito.Mockito.*;
 
 public class LienzoTest {
 
-    private GestorFicheros<Map<String, AbstractFigura>> gestorFicheros;
     private Lienzo lienzo;
+    private static final String nombreArchivo = "figuras.txt";
+    private final String id = "Figura001";
 
     @BeforeEach
     void setUp() throws IOException {
-        gestorFicheros = mock(GestorFicheros.class);
-        lienzo = new Lienzo("figuras.txt");
+        lienzo = new Lienzo(nombreArchivo);
     }
 
     @Test
-    void testAgregarFigura_ValidFigure_DeberiaAgregarFigura() {
-        String id = "circulo001";
+    void testAgregar_DeberiaAgregarFigura() {
         AbstractFigura figura = mock(Punto.class);
         when(figura.estaDentroLimites(id)).thenReturn(true);
-
-        lienzo.agregarFigura(id, figura);
-
-        // Assert
+        lienzo.agregar(id, figura);
         assertTrue(lienzo.existeId(id));
     }
 
     @Test
-    void testAgregarFigura_IdExiste_DeberiaLanzarExcepcion() throws IOException {
+    void testAgregarLinea_DeberiaAgregarFigura() {
+        AbstractFigura figura = mock(Linea.class);
+        when(figura.estaDentroLimites(id)).thenReturn(true);
+        lienzo.agregar(id, figura);
+        assertTrue(lienzo.existeId(id));
+    }
 
-        String id = "Punto01";
+    @Test
+    void testAgregar_IdExiste_DeberiaLanzarExcepcion() throws IOException {
         AbstractFigura figura1 = mock(Punto.class);
         when(figura1.estaDentroLimites(id)).thenReturn(true);
 
         AbstractFigura figura2 = mock(Linea.class);
         when(figura2.estaDentroLimites(id)).thenReturn(true);
 
-        Map<String, AbstractFigura> figuras = new HashMap<>();
-        figuras.put(id, figura1);
-        when(gestorFicheros.cargarFiguras()).thenReturn(figuras);
-        lienzo = new Lienzo("figuras.txt");
+        lienzo.agregar(id, figura1);
 
-        assertThrows(NoSuchElementException.class, () -> lienzo.agregarFigura(id, figura2));
+        assertThrows(IdNotFoundException.class, () -> lienzo.agregar(id, figura2));
 
     }
 
     @Test
-    void testModificarPosicion_FiguraValida_DeberiaCambiarPosicion() {
+    void testAgregar_FueraLimites_DeberiaLanzarExcepcion() throws IOException {
+        AbstractFigura figura1 = mock(Punto.class);
+        when(figura1.estaDentroLimites(id)).thenReturn(false);
 
-        String id = "Linea01";
+        assertThrows(OutOfBoundsException.class, () -> lienzo.agregar(id, figura1));
+
+    }
+
+    @Test
+    void testModificarPosicion_DeberiaCambiarPosicion() {
         AbstractFigura figura = mock(Punto.class);
         when(figura.estaDentroLimites(id)).thenReturn(true);
-        lienzo.agregarFigura(id, figura);
+        lienzo.agregar(id, figura);
+
+        Posicion nuevaPosicion = new Posicion(-20, 20);
+        lienzo.modificarPosicionFigura(id, nuevaPosicion, true);
+
+        verify(figura, times(1)).mover(nuevaPosicion, true);
+    }
+
+    @Test
+    void testModificarPosicionLinea_DeberiaCambiarPosicion() {
+        AbstractFigura figura = mock(Linea.class);
+        when(figura.estaDentroLimites(id)).thenReturn(true);
+        lienzo.agregar(id, figura);
         Posicion nuevaPosicion = new Posicion(20, 20);
 
-
-        lienzo.modificarPosicion(id, nuevaPosicion);
-
-
-        verify(figura).mover(nuevaPosicion, true);
+        lienzo.modificarPosicionFigura(id, nuevaPosicion, false);
+        verify(figura, times(1)).mover(nuevaPosicion, false);
     }
 
     @Test
-    void testEliminarFigura_FiguraValida_DeberiaEliminarFigura() {
-
-        String id = "linea01";
+    public void ModificarPosicion_NoDeberiaCambiarPosicion() {
         AbstractFigura figura = mock(Punto.class);
         when(figura.estaDentroLimites(id)).thenReturn(true);
-        lienzo.agregarFigura(id, figura);
+        lienzo.agregar(id, figura);
 
+        Posicion nuevaPosicion = new Posicion(-20, 20);
+        doThrow(OutOfBoundsException.class).when(figura).mover(nuevaPosicion);
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicion));
+    }
+
+    @Test
+    public void ModificarPosicionLinea_NoDeberiaCambiarPosicion() {
+        AbstractFigura figura = mock(Linea.class);
+        when(figura.estaDentroLimites(id)).thenReturn(true);
+        lienzo.agregar(id, figura);
+
+        Posicion nuevaPosicion = new Posicion(20, 20);
+        doThrow(OutOfBoundsException.class).when(figura).mover(nuevaPosicion);
+        assertThrows(OutOfBoundsException.class, () -> figura.mover(nuevaPosicion));
+    }
+
+
+    @Test
+    void testModificarTamano_FiguraValida_DeberiaCambiarTamano() {
+        Cuadrado cuadrado = mock(Cuadrado.class);
+        when(cuadrado.estaDentroLimites(id)).thenReturn(true);
+        lienzo.agregar(id, cuadrado);
+
+        when(cuadrado.esValida(cuadrado.getLado())).thenReturn(true);
+        lienzo.modificarTamanoFigura(id, 40);
+
+        verify(cuadrado).cambiarTamano(cuadrado.getLado());
+    }
+
+    @Test
+    void testModificarTamano_LongitudNoValida_DeberiaLanzarExcepcion() {
+        AbstractFigura figura = mock(Cuadrado.class);
+        when(figura.estaDentroLimites(id)).thenReturn(true);
+        lienzo.agregar(id, figura);
+
+        assertThrows(RuntimeException.class, () -> lienzo.modificarTamanoFigura(id, -40));
+    }
+
+
+    @Test
+    void testEliminarFigura_DeberiaEliminarFigura() {
+        AbstractFigura figura = mock(Punto.class);
+        when(figura.estaDentroLimites(id)).thenReturn(true);
+        lienzo.agregar(id, figura);
 
         lienzo.eliminarFigura(id);
-
 
         assertFalse(lienzo.existeId(id));
     }
 
     @Test
-    void testModificarTamano_FiguraValida_DeberiaCambiarTamano() {
-        String id = "Cuadrado01";
-        AbstractFigura figura = mock(Cuadrado.class);
-        when(figura.estaDentroLimites(id)).thenReturn(true);
-        lienzo.agregarFigura(id, figura);
-        int newLength = 30;
+    void testEliminarFigura_IdNoExiste_DeberiaLanzarExcepcion() {
 
-        lienzo.modificarTamano(id, newLength);
+        assertThrows(NoSuchElementException.class, () -> lienzo.eliminarFigura(id));
+    }
 
-        verify(figura).cambiarTamano(newLength);
+    @Test
+    public void generarFicheroTest() throws IOException {
+        lienzo.agregar(id, new Circulo(new Posicion(10, 10), 5, "verde"));
+        int lineasFichero = lienzo.guardarFiguras(nombreArchivo);
+        Assertions.assertEquals(lienzo.getFiguras().size(), lineasFichero);
+    }
+
+    @Test
+    public void cargarFicheroTest() throws IOException {
+        Map<String, AbstractFigura> figuras = lienzo.cargarFiguras(nombreArchivo);
+        Assertions.assertEquals(1, figuras.size());
     }
 
 }

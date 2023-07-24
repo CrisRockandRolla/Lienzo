@@ -8,10 +8,12 @@ public class Cuadrado extends AbstractFigura {
         this.lado = lado;
     }
 
-
     @Override
     public void cambiarTamano(int longitud) {
-        lado = longitud;
+        if (esValida(longitud)) {
+            lado = longitud;
+        }
+        else throw new RuntimeException("Longitud de lado no válida < 0");
     }
 
     public int getLado() {

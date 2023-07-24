@@ -1,8 +1,6 @@
 package es.cic;
 
-import java.io.Serializable;
-
-public class Posicion implements Serializable {
+public class Posicion {
     private int coordenadaX;
     private int coordenadaY;
 
@@ -20,5 +18,11 @@ public class Posicion implements Serializable {
 
     public int getCoordenadaY() {
         return coordenadaY;
+    }
+
+    @Override
+    public String toString() {
+        return "coordenadaX=" + coordenadaX +
+                ", coordenadaY=" + coordenadaY;
     }
 }

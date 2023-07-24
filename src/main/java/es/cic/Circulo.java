@@ -14,6 +14,9 @@ public class Circulo extends AbstractFigura{
 
     @Override
     public void cambiarTamano(int longitud) {
-        radio = longitud;
+        if (longitud>0) {
+            radio = longitud;
+        }
+        else throw new RuntimeException("Longitud de radio no válida < 0");
     }
 }
