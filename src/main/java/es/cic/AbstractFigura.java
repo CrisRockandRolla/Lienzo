@@ -6,8 +6,7 @@ abstract class AbstractFigura implements Figura {
     private Posicion posicion;
     private Posicion posicion2;
     private String color;
-
-
+    
     public AbstractFigura(Posicion posicion, String color) {
         this(posicion, null, color);
     }
@@ -60,27 +59,8 @@ abstract class AbstractFigura implements Figura {
         return posicion2;
     }
 
-//    public int getX() {
-//        return posicion.getCoordenadaX();
-//    }
-//
-//    public int getY() {
-//        return posicion.getCoordenadaY();
-//    }
-
     public String getColor() {
         return color;
     }
 
-    public void setPosicion(Posicion posicion) {
-        this.posicion = posicion;
-    }
-
-    public void setPosicion2(Posicion posicion2) {
-        this.posicion2 = posicion2;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
 }
