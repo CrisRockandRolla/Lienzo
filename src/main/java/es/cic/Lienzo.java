@@ -18,8 +18,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Lienzo {
-    private static int ancho = 1000000;
-    private static int alto = 1000000;
+    private static final int ancho = 1000000;
+    private static final int alto = 1000000;
     private final Map<String, AbstractFigura> figuras;
 
     public Lienzo(String nombreArchivo) {
@@ -28,15 +28,11 @@ public class Lienzo {
     }
 
     public void agregar(String id, AbstractFigura figura) {
-        if (!existeId(id) && figura.estaDentroLimites(id)) {
-            figuras.put(id, figura);
-        } else {
-            if (existeId(id)) {
-                throw new IdNotFoundException("Ya existe una figura con el id " + id);
-            } else {
-                throw new OutOfBoundsException("Posicion " + figura.getPosicion() + " no válida.");
-            }
-        }
+        if (existeId(id)) throw new IdNotFoundException("Ya existe una figura con el id " + id);
+        if (!figura.estaDentroLimites(id))
+            throw new OutOfBoundsException("Posicion " + figura.getPosicion() + " no válida.");
+
+        figuras.put(id, figura);
     }
 
     public void eliminarFigura(String id) {
@@ -90,7 +86,7 @@ public class Lienzo {
                         data = new String[]{id, figura.getClass().getSimpleName(), figura.getPosicion() + "", figura.getColor(), ((Cuadrado) figura).getLado() + ""};
                         break;
                     case "Circulo":
-                        data = new String[]{id, figura.getClass().getSimpleName(), figura.getPosicion() + "", figura.getColor(), ((Circulo) figura).getRadio() + ""};
+                        data = new String[]{id, figura.getClass().getSimpleName(), figura.getPosicion().getCoordenadaX() + "", figura.getPosicion().getCoordenadaY() + "", figura.getColor(), ((Circulo) figura).getRadio() + ""};
                         break;
                     default:
                         throw new UnsupportedOperationException("Caso no válido");
@@ -151,17 +147,6 @@ public class Lienzo {
         return figuras.containsKey(id);
     }
 
-//    private boolean isDuplicado(Figura figura){
-//        List<AbstractFigura> fig = new ArrayList<>();
-//        fig.add(new Punto(new Posicion(10,10),"rojo"));
-//        fig.stream()
-//           .filter(i->i.getX()==figura.getX())
-//           .findFirst()
-//           .orElseThrow(() -> new java.util.NoSuchElementException("Figura no encontrado con posicion: " + figura.getX()));
-//
-//        return  false;
-//    }
-
 
     public Map<String, AbstractFigura> getFiguras() {
         return figuras;
@@ -171,16 +156,7 @@ public class Lienzo {
         return ancho;
     }
 
-    public static void setAncho(int ancho) {
-        Lienzo.ancho = ancho;
-    }
-
     public static int getAlto() {
         return alto;
     }
-
-    public static void setAlto(int alto) {
-        Lienzo.alto = alto;
-    }
-
 }

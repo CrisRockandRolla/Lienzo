@@ -1,0 +1,9 @@
+App que tenga un lienzo en el que se puedan dibujar figuras. Estas figuras seran:
+- Punto (coordenada x, coordenada y)
+- Linea (p1, p2)
+- Cuadrado (pCentro, lado)
+- Circulo (pCentro, radio)
+
+
+Las figuras se podran añadir, eliminar, y mover por el lienzo. Ademas adicionalmente se deben guardar en un fichero y cargar al abrir la app
+Las figuras deben tener el punto de aplicacion dentro de los limites del lienzo que son de 1000000x1000000
